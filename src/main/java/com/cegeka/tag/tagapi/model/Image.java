@@ -4,10 +4,13 @@ import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 
 @Setter
 @Getter
 public class Image {
-  Long id;
+
+  @Id
+  String id;
   Map<String, Set<Annotation>> annotations;
 }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
-public class ImageAnnotationsDTO {
-  private Long imageId;
+public class ImageDTO {
+  private String id;
   private Map<String, Set<Annotation>> annotations;
 }
