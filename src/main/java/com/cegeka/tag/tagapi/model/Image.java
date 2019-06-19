@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,7 +13,7 @@ import java.util.Set;
 public class Image {
     @Id
     private String id;
-    private Map<String, Set<Annotation>> annotations;
+    private Map<String, Set<Annotation>> annotations = new HashMap<>();
     private Integer height;
     private Integer width;
     private String name;
