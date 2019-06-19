@@ -3,13 +3,16 @@ plugins {
 	id 'java'
 }
 
+apply plugin: 'idea'
 apply plugin: 'war' // used to allow "providedCompile" dependencies in build.gradle.
 apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
-group = 'com.cegeka.tag'
+group = 'com.cegeka.tag.tagapi'
 version = '0.0.1-SNAPSHOT'
+mainClassName = 'com.cegeka.tag.tagapi.TagapiApplication'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
