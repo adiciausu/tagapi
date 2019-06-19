@@ -1,12 +1,13 @@
 package com.cegeka.tag.tagapi.model;
 
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Setter
 @Getter
 public class Annotation {
-  AnnotationShape shape;
-  Set<Point> points;
+    AnnotationShape shape;
+    List<Point> points;
 }

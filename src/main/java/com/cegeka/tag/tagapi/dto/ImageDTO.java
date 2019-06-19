@@ -13,4 +13,8 @@ import lombok.Setter;
 public class ImageDTO {
   private String id;
   private Map<String, Set<Annotation>> annotations;
+  private Integer height;
+  private Integer width;
+  private String name;
+  private String path;
 }
