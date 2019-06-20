@@ -45,7 +45,6 @@ public class ClassController {
     return true;
   }
 
-
   @GetMapping("/class/list")
   @ResponseBody
   public List<ClassDTO> findAll() {
