@@ -1,7 +1,6 @@
 package com.cegeka.tag.tagapi.controller;
 
 import com.cegeka.tag.tagapi.dto.ClassDTO;
-import com.cegeka.tag.tagapi.dto.ImageDTO;
 import com.cegeka.tag.tagapi.model.Class;
 import com.cegeka.tag.tagapi.service.ClassService;
 import org.modelmapper.ModelMapper;
@@ -25,8 +24,8 @@ public class ClassController {
 
     @PostMapping("/class")
     @ResponseBody
-    public Boolean save(@RequestBody ImageDTO imageDTO) {
-        Class clazz = this.modelMapper.map(imageDTO, Class.class);
+    public Boolean save(@RequestBody ClassDTO classDTO) {
+        Class clazz = this.modelMapper.map(classDTO, Class.class);
         this.classService.save(clazz);
 
         return true;
