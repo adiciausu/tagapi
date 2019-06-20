@@ -17,5 +17,4 @@ public class Image {
     private Integer height;
     private Integer width;
     private String name;
-    private String path;
 }

@@ -3,6 +3,8 @@ package com.cegeka.tag.tagapi.controller;
 import com.cegeka.tag.tagapi.dto.ImageDTO;
 import com.cegeka.tag.tagapi.model.Image;
 import com.cegeka.tag.tagapi.service.ImageService;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -11,6 +13,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,17 +62,21 @@ public class ImageController {
   public Boolean upload(@RequestParam("images[]") List<MultipartFile> files) {
     for (MultipartFile file : files) {
       try (InputStream inputStream = file.getInputStream()) {
-        Path newFilePath = Paths.get(this.uploadPath.toString(), "images", file.getOriginalFilename());
+        Path newFilePath = Paths
+            .get(this.uploadPath.toString(), "images", file.getOriginalFilename());
         Files.copy(inputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
+
+        BufferedImage bufferedImage = ImageIO.read(new File(newFilePath.toString()));
+        Image image = new Image();
+        image.setName(file.getOriginalFilename());
+        image.setWidth(bufferedImage.getWidth());
+        image.setHeight(bufferedImage.getHeight());
+        this.imageService.save(image);
+
       } catch (IOException e) {
         throw new RuntimeException("Failed to store file ", e);
       }
-
-      Image image = new Image();
-      image.setName(file.getOriginalFilename());
-      this.imageService.save(image);
     }
-
 
     return true;
   }
