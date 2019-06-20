@@ -22,6 +22,10 @@ public class ClassService {
     this.classRepository.save(clazz);
   }
 
+  public void delete(String classID) {
+    this.classRepository.deleteById(classID);
+  }
+
   public List<Class> findAll() {
     List<Class> classList = new ArrayList<>();
     this.classRepository.findAll().forEach(classList::add);
