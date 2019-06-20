@@ -31,7 +31,7 @@ public class ImageController {
 
   @Autowired
   public ImageController(ImageService imageService, ModelMapper modelMapper,
-      @Value("${app.uploadpath}") String uploadURI) {
+      @Value("${app.uploadPath}") String uploadURI) {
     this.imageService = imageService;
     this.modelMapper = modelMapper;
     this.uploadPath = Paths.get(uploadURI);
@@ -39,6 +39,7 @@ public class ImageController {
     // @todo move this to startup script
     try {
       Files.createDirectories(this.uploadPath);
+      Files.createDirectories(Paths.get(this.uploadPath.toString(), "images"));
     } catch (IOException e) {
       throw new RuntimeException("Could not initialize storage", e);
     }
@@ -58,8 +59,7 @@ public class ImageController {
   public Boolean upload(@RequestParam("images[]") List<MultipartFile> files) {
     for (MultipartFile file : files) {
       try (InputStream inputStream = file.getInputStream()) {
-        Path newFilePath = Paths.get(this.uploadPath.toString(), file.getOriginalFilename());
-        System.out.println(newFilePath);
+        Path newFilePath = Paths.get(this.uploadPath.toString(), "images", file.getOriginalFilename());
         Files.copy(inputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
       } catch (IOException e) {
         throw new RuntimeException("Failed to store file ", e);
