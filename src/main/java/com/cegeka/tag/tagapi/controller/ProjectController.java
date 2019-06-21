@@ -51,9 +51,9 @@ public class ProjectController {
 
   @DeleteMapping("/project/{id}")
   @ResponseBody
-  public Boolean delete(@PathVariable String id) {
+  public String delete(@PathVariable String id) {
     this.projectService.delete(id);
 
-    return true;
+    return id;
   }
 }
