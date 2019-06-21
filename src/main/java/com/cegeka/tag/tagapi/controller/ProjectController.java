@@ -1,7 +1,6 @@
 package com.cegeka.tag.tagapi.controller;
 
 import com.cegeka.tag.tagapi.dto.ProjectDTO;
-import com.cegeka.tag.tagapi.model.Image;
 import com.cegeka.tag.tagapi.model.Project;
 import com.cegeka.tag.tagapi.service.ProjectService;
 import java.util.ArrayList;
@@ -30,11 +29,11 @@ public class ProjectController {
 
   @PostMapping("/project")
   @ResponseBody
-  public Boolean save(@RequestBody ProjectDTO projectDTO) {
+  public ProjectDTO save(@RequestBody ProjectDTO projectDTO) {
     Project project = this.modelMapper.map(projectDTO, Project.class);
-    this.projectService.save(project);
+    Project newProject = this.projectService.save(project);
 
-    return true;
+    return modelMapper.map(newProject, ProjectDTO.class);
   }
 
   @GetMapping("/project/list")
