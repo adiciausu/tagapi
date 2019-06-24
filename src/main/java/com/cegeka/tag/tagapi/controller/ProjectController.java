@@ -54,6 +54,6 @@ public class ProjectController {
   public String delete(@PathVariable String id) {
     this.projectService.delete(id);
 
-    return id;
+    return "\"" + id + "\""; // @todo more elegant way?
   }
 }
