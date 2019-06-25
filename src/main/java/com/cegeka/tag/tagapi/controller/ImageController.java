@@ -8,6 +8,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,8 +43,8 @@ public class ImageController {
 
   @PostMapping("/image/upload")
   @ResponseBody
-  public Boolean upload(@RequestParam("images[]") List<MultipartFile> files) {
-    this.imageService.upload(files);
+  public Boolean upload(@RequestParam("images[]") List<MultipartFile> files, @RequestParam("projectId") String projectId) {
+    this.imageService.upload(files, projectId);
 
     return true;
   }
@@ -58,8 +59,9 @@ public class ImageController {
 
   @GetMapping("/image/list")
   @ResponseBody
-  public List<ImageDTO> findAll() {
-    List<Image> imageList = this.imageService.findAll();
+  public List<ImageDTO> findAll(@RequestParam("projectId") String projectId) {
+
+    List<Image> imageList = this.imageService.findAll(projectId);
     List<ImageDTO> imageDTOList = new ArrayList<>();
     imageList.forEach((item) -> {
       ImageDTO imageDTO = modelMapper.map(item, ImageDTO.class);
@@ -72,10 +74,10 @@ public class ImageController {
 
   @RequestMapping(value = "/image/export")
   @ResponseBody
-  public List<ImageDTO> txtResponse(HttpServletResponse response) {
+  public List<ImageDTO> txtResponse(@RequestParam("projectId") String projectId, HttpServletResponse response) {
     String fileName = "annotations.json";
     response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-    List<Image> imageList = this.imageService.findAll();
+    List<Image> imageList = this.imageService.findAll(projectId);
     List<ImageDTO> imageDTOList = new ArrayList<>();
     imageList.forEach((item) -> {
       ImageDTO imageDTO = modelMapper.map(item, ImageDTO.class);

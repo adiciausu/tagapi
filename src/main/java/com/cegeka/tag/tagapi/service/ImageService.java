@@ -44,7 +44,7 @@ public class ImageService {
     return this.imageRepository.save(image);
   }
 
-  public void upload(List<MultipartFile> imageList) {
+  public void upload(List<MultipartFile> imageList, String projectId) {
     for (MultipartFile file : imageList) {
       try (InputStream inputStream = file.getInputStream()) {
         Path newFilePath = getImagePath(file.getOriginalFilename());
@@ -55,6 +55,7 @@ public class ImageService {
         image.setName(file.getOriginalFilename());
         image.setWidth(bufferedImage.getWidth());
         image.setHeight(bufferedImage.getHeight());
+        image.setProjectId(projectId);
         this.save(image);
 
       } catch (IOException e) {
@@ -69,9 +70,9 @@ public class ImageService {
     return imageOptional.orElse(null);
   }
 
-  public List<Image> findAll() {
+  public List<Image> findAll(String projectId) {
     List<Image> imageList = new ArrayList<>();
-    this.imageRepository.findAll().forEach(imageList::add);
+    this.imageRepository.findAllByProjectId(projectId).forEach(imageList::add);
 
     return imageList;
   }

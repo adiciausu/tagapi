@@ -7,8 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ClassDTO {
-    String id;
-    String name;
-    AnnotationShape shape;
-    String color;
+  private String id;
+  private String name;
+  private AnnotationShape shape;
+  private String color;
+  private String projectId;
 }

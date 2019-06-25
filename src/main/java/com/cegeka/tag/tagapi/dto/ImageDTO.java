@@ -19,4 +19,5 @@ public class ImageDTO {
   private Integer width;
   private String name;
   private String path;
+  private String projectId;
 }

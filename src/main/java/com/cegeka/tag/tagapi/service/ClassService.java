@@ -26,9 +26,9 @@ public class ClassService {
     this.classRepository.deleteById(classID);
   }
 
-  public List<Class> findAll() {
+  public List<Class> findAll(String projectId) {
     List<Class> classList = new ArrayList<>();
-    this.classRepository.findAll().forEach(classList::add);
+    this.classRepository.findAllByProjectId(projectId).forEach(classList::add);
 
     return classList;
   }
