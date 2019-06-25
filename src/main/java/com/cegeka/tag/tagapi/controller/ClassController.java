@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,19 +29,19 @@ public class ClassController {
 
   @PostMapping("/class")
   @ResponseBody
-  public Boolean save(@RequestBody ClassDTO classDTO) {
+  public Class save(@RequestBody ClassDTO classDTO) {
     Class clazz = this.modelMapper.map(classDTO, Class.class);
     this.classService.save(clazz);
 
-    return true;
+    return clazz;
   }
 
   @DeleteMapping("/class/{id}")
   @ResponseBody
-  public Boolean delete(@PathVariable String id) {
+  public String delete(@PathVariable String id) {
     this.classService.delete(id);
 
-    return true;
+    return "\"" + id + "\"";
   }
 
   @GetMapping("/class/list")
