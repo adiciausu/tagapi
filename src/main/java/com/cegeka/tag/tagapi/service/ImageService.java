@@ -40,8 +40,8 @@ public class ImageService {
     }
   }
 
-  public void save(Image image) {
-    this.imageRepository.save(image);
+  public Image save(Image image) {
+    return this.imageRepository.save(image);
   }
 
   public void upload(List<MultipartFile> imageList) {

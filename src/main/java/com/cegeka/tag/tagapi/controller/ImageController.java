@@ -33,11 +33,11 @@ public class ImageController {
 
   @PostMapping("/image")
   @ResponseBody
-  public Boolean save(@RequestBody ImageDTO imageDTO) {
+  public ImageDTO save(@RequestBody ImageDTO imageDTO) {
     Image image = this.modelMapper.map(imageDTO, Image.class);
-    this.imageService.save(image);
+    Image newImage = this.imageService.save(image);
 
-    return true;
+    return modelMapper.map(newImage, ImageDTO.class);
   }
 
   @PostMapping("/image/upload")
@@ -87,9 +87,9 @@ public class ImageController {
 
   @DeleteMapping("/image/{id}")
   @ResponseBody
-  public Boolean delete(@PathVariable String id) {
+  public String delete(@PathVariable String id) {
     this.imageService.delete(id);
 
-    return true;
+    return "\"" + id + "\"";
   }
 }
