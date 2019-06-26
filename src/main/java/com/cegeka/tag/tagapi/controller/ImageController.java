@@ -60,7 +60,6 @@ public class ImageController {
   @GetMapping("/image/list")
   @ResponseBody
   public List<ImageDTO> findAll(@RequestParam("projectId") String projectId) {
-
     List<Image> imageList = this.imageService.findAll(projectId);
     List<ImageDTO> imageDTOList = new ArrayList<>();
     imageList.forEach((item) -> {
