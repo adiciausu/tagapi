@@ -1,6 +1,8 @@
 package com.cegeka.tag.tagapi.service;
 
 import com.cegeka.tag.tagapi.model.Project;
+import com.cegeka.tag.tagapi.repo.ClassRepository;
+import com.cegeka.tag.tagapi.repo.ImageRepository;
 import com.cegeka.tag.tagapi.repo.ProjectRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +13,15 @@ import org.springframework.stereotype.Component;
 public class ProjectService {
 
   private ProjectRepository projectRepository;
+  private ImageRepository imageRepository;
+  private ClassRepository classRepository;
 
   @Autowired
-  public ProjectService(ProjectRepository projectRepository) {
+  public ProjectService(ProjectRepository projectRepository, ImageRepository imageRepository,
+      ClassRepository classRepository) {
     this.projectRepository = projectRepository;
+    this.imageRepository = imageRepository;
+    this.classRepository = classRepository;
   }
 
   public Project save(Project project) {
@@ -28,7 +35,9 @@ public class ProjectService {
     return projectList;
   }
 
-  public void delete(String imageId) {
-    this.projectRepository.deleteById(imageId);
+  public void delete(String projectId) {
+    this.projectRepository.deleteById(projectId);
+    this.imageRepository.deleteByProjectId(projectId);
+    this.classRepository.deleteByProjectId(projectId);
   }
 }
