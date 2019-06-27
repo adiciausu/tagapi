@@ -6,8 +6,6 @@ import com.cegeka.tag.tagapi.service.jwt.JwtAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
@@ -62,28 +59,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     httpSecurity
         .cors()
         .and()
-        .csrf()
-        .disable()
-        .exceptionHandling()
-        .authenticationEntryPoint(unauthorizedHandler)
+        .csrf().disable()
+        .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
         .and()
-        .sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .authorizeRequests()
-//        .antMatchers("/**")
-//        .permitAll()
-        .antMatchers(HttpMethod.POST, "/auth/*")
-        .permitAll()
-        .anyRequest()
-        .authenticated()
-        .and()
-        .logout()
-        .permitAll()
-        .deleteCookies("JSESSIONID")
-        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK));
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and();
 
-    httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+    httpSecurity.authorizeRequests()
+        .antMatchers("/auth/**").permitAll()
+        .anyRequest().authenticated();
+
+    httpSecurity
+        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
   }
 

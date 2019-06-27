@@ -1,13 +1,12 @@
 package com.cegeka.tag.tagapi.controller;
 
 import com.cegeka.tag.tagapi.dto.UserDTO;
-import com.cegeka.tag.tagapi.dto.response.JwtAuthenticationResponseDTO;
 import com.cegeka.tag.tagapi.model.User;
 import com.cegeka.tag.tagapi.service.UserService;
 import com.cegeka.tag.tagapi.service.jwt.JwtTokenProvider;
 import java.net.URI;
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,36 +23,32 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/auth")
 public class AuthenticationController {
 
-  @Autowired
   private AuthenticationManager authenticationManager;
-  @Autowired
   private JwtTokenProvider tokenProvider;
-  @Autowired
   private UserService userService;
-  @Autowired
   private PasswordEncoder passwordEncoder;
 
   public AuthenticationController(AuthenticationManager authenticationManager,
-      JwtTokenProvider tokenProvider, UserService userService) {
+      JwtTokenProvider tokenProvider, UserService userService, PasswordEncoder passwordEncoder) {
     this.authenticationManager = authenticationManager;
     this.tokenProvider = tokenProvider;
     this.userService = userService;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @PostMapping("/login")
-  public ResponseEntity<?> authenticateUser(@Valid @RequestBody UserDTO loginRequest) {
-
+  public ResponseEntity<?> authenticateUser(@Valid @RequestBody UserDTO userDTO) {
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
-            loginRequest.getEmail(),
-            loginRequest.getPassword()
+            userDTO.getEmail(),
+            userDTO.getPassword()
         )
     );
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = tokenProvider.generateToken(authentication);
 
-    return ResponseEntity.ok(new JwtAuthenticationResponseDTO(jwt));
+    return ResponseEntity.ok("\"" + jwt + "\"");
   }
 
   @PostMapping("/register")
