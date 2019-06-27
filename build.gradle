@@ -25,8 +25,11 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.1.5.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.1.5.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb', version: '2.1.5.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-boot-starter-security', version: '2.1.5.RELEASE'
 
     compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.4'
+    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
     providedCompile group: 'org.projectlombok', name: 'lombok', version: '1.18.8'
 
 	implementation 'org.springframework.boot:spring-boot-starter'
