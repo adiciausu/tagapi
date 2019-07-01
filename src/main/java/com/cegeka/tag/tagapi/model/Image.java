@@ -19,5 +19,5 @@ public class Image {
     private Integer width;
     private String name;
     private String projectId;
-    private ImageStatus status;
+    private ImageStatus status = ImageStatus.PENDING;
 }

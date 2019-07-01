@@ -4,10 +4,12 @@ import com.cegeka.tag.tagapi.dto.ImageDTO;
 import com.cegeka.tag.tagapi.model.Annotation;
 import com.cegeka.tag.tagapi.model.Class;
 import com.cegeka.tag.tagapi.model.Image;
+import com.cegeka.tag.tagapi.model.UserPrincipal;
 import com.cegeka.tag.tagapi.service.ClassService;
 import com.cegeka.tag.tagapi.service.ImageService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,7 +61,7 @@ public class ImageController {
     @GetMapping("/image/list")
     @ResponseBody
     public List<ImageDTO> findAll(@RequestParam("projectId") String projectId) {
-        List<Image> imageList = this.imageService.findAll(projectId);
+        List<Image> imageList = this.imageService.findAllByProjectId(projectId);
         List<ImageDTO> imageDTOList = new ArrayList<>();
         imageList.forEach((item) -> {
             ImageDTO imageDTO = modelMapper.map(item, ImageDTO.class);
@@ -69,13 +71,26 @@ public class ImageController {
         return imageDTOList;
     }
 
+    @GetMapping("/image/batch")
+    @ResponseBody
+    public List<ImageDTO> getAndLockBatch(@RequestParam("projectId") String projectId, Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        List<Image> imageList = this.imageService.getAndLockBatch(projectId, userPrincipal.getId());
+        List<ImageDTO> imageDTOList = new ArrayList<>();
+        imageList.forEach((item) -> {
+            ImageDTO imageDTO = modelMapper.map(item, ImageDTO.class);
+            imageDTOList.add(imageDTO);
+        });
+
+        return imageDTOList;
+    }
 
     @RequestMapping(value = "/image/export")
     @ResponseBody
     public List<ImageDTO> txtResponse(@RequestParam("projectId") String projectId, HttpServletResponse response) {
         String fileName = "annotations.json";
         response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-        List<Image> imageList = this.imageService.findAll(projectId);
+        List<Image> imageList = this.imageService.findAllByProjectId(projectId);
         List<Class> classList = this.classService.findAll(projectId);
         List<ImageDTO> imageDTOList = new ArrayList<>();
         imageList.forEach((Image item) -> {

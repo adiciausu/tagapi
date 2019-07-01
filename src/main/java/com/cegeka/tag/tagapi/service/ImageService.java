@@ -2,6 +2,12 @@ package com.cegeka.tag.tagapi.service;
 
 import com.cegeka.tag.tagapi.model.Image;
 import com.cegeka.tag.tagapi.repo.ImageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -10,86 +16,86 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.imageio.ImageIO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class ImageService {
+    private static int IMAGE_BATCH_COUNT = 10;
+    private ImageRepository imageRepository;
+    private Path uploadPath;
 
-  private ImageRepository imageRepository;
-  private Path uploadPath;
+    @Autowired
+    public ImageService(ImageRepository imageRepository,
+                        @Value("${app.uploadPath}") String uploadURI) {
+        this.imageRepository = imageRepository;
+        this.uploadPath = Paths.get(uploadURI);
 
-  @Autowired
-  public ImageService(ImageRepository imageRepository,
-      @Value("${app.uploadPath}") String uploadURI) {
-    this.imageRepository = imageRepository;
-    this.uploadPath = Paths.get(uploadURI);
-
-    // @todo move this to @PostConstruct???
-    try {
-      Files.createDirectories(this.uploadPath);
-      Files.createDirectories(Paths.get(this.uploadPath.toString(), "images"));
-    } catch (IOException e) {
-      throw new RuntimeException("Could not initialize storage", e);
+        // @todo move this to @PostConstruct???
+        try {
+            Files.createDirectories(this.uploadPath);
+            Files.createDirectories(Paths.get(this.uploadPath.toString(), "images"));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not initialize storage", e);
+        }
     }
-  }
 
-  public Image save(Image image) {
-    return this.imageRepository.save(image);
-  }
-
-  public void upload(List<MultipartFile> imageList, String projectId) {
-    for (MultipartFile file : imageList) {
-      try (InputStream inputStream = file.getInputStream()) {
-        Path newFilePath = getImagePath(file.getOriginalFilename());
-        Files.copy(inputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
-
-        BufferedImage bufferedImage = ImageIO.read(new File(newFilePath.toString()));
-        Image image = new Image();
-        image.setName(file.getOriginalFilename());
-        image.setWidth(bufferedImage.getWidth());
-        image.setHeight(bufferedImage.getHeight());
-        image.setProjectId(projectId);
-        this.save(image);
-
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to store file ", e);
-      }
+    public Image save(Image image) {
+        return this.imageRepository.save(image);
     }
-  }
 
-  public Image findById(String imageId) {
-    Optional<Image> imageOptional = this.imageRepository.findById(imageId);
+    public void upload(List<MultipartFile> imageList, String projectId) {
+        for (MultipartFile file : imageList) {
+            try (InputStream inputStream = file.getInputStream()) {
+                Path newFilePath = getImagePath(file.getOriginalFilename());
+                Files.copy(inputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
 
-    return imageOptional.orElse(null);
-  }
+                BufferedImage bufferedImage = ImageIO.read(new File(newFilePath.toString()));
+                Image image = new Image();
+                image.setName(file.getOriginalFilename());
+                image.setWidth(bufferedImage.getWidth());
+                image.setHeight(bufferedImage.getHeight());
+                image.setProjectId(projectId);
+                this.save(image);
 
-  public List<Image> findAll(String projectId) {
-    List<Image> imageList = new ArrayList<>();
-    this.imageRepository.findAllByProjectId(projectId).forEach(imageList::add);
-
-    return imageList;
-  }
-
-  public void delete(String imageId) {
-    Image img = this.imageRepository.findById(imageId).orElse(null);
-    if (img != null) {
-      try {
-        Files.delete(getImagePath(img.getName()));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to store file ", e);
+            }
+        }
     }
-    this.imageRepository.deleteById(imageId);
-  }
 
-  private Path getImagePath(String fileName) {
-    return Paths.get(this.uploadPath.toString(), "images", fileName);
-  }
+    public Image findById(String imageId) {
+        Optional<Image> imageOptional = this.imageRepository.findById(imageId);
+
+        return imageOptional.orElse(null);
+    }
+
+    public List<Image> findAllByProjectId(String projectId) {
+        return imageRepository.findAllByProjectId(projectId);
+    }
+
+    public List<Image> getAndLockBatch(String projectId, String userId) {
+        List<Image> userImageList = this.imageRepository.getLockedBatch(projectId, userId, IMAGE_BATCH_COUNT);
+        if (userImageList.size() < IMAGE_BATCH_COUNT) {
+            userImageList.addAll(this.imageRepository.getAndLockBatch(projectId, userId, IMAGE_BATCH_COUNT));
+        }
+
+        return userImageList;
+    }
+
+    public void delete(String imageId) {
+        Image img = this.imageRepository.findById(imageId).orElse(null);
+        if (img != null) {
+            try {
+                Files.delete(getImagePath(img.getName()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        this.imageRepository.deleteById(imageId);
+    }
+
+    private Path getImagePath(String fileName) {
+        return Paths.get(this.uploadPath.toString(), "images", fileName);
+    }
 }
