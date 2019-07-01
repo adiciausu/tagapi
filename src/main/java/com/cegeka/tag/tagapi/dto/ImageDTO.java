@@ -12,7 +12,6 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class ImageDTO {
-
   private String id;
   private Map<String, Set<Annotation>> annotations = new HashMap<>();
   private Integer height;
