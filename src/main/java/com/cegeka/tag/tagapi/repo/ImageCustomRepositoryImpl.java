@@ -35,6 +35,8 @@ public class ImageCustomRepositoryImpl implements ImageCustomRepository {
     Query query = new Query();
     query.addCriteria(statusCriteria);
     query.addCriteria(projectCriteria);
+    query.skip(0);
+    query.limit(count);
 
     Update update = new Update();
     update.set("status", ImageStatus.PROCESSING.toString());

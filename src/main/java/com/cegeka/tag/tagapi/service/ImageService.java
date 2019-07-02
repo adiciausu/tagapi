@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class ImageService {
 
-  private static int IMAGE_BATCH_COUNT = 10;
+  private static int IMAGE_BATCH_COUNT = 5;
   private ImageRepository imageRepository;
   private Path uploadPath;
 
@@ -87,10 +87,7 @@ public class ImageService {
       return userImageList;
     }
 
-    int diff = IMAGE_BATCH_COUNT - userImageList.size();
-    this.imageRepository.lockBatch(projectId, userId, diff);
-
-    page = new PageRequest(0, diff);
+    this.imageRepository.lockBatch(projectId, userId, userImageList);
 
     return this.imageRepository
         .findAllByProjectIdAndStatusAndProcessorUserId(projectId, ImageStatus.PROCESSING, userId,
