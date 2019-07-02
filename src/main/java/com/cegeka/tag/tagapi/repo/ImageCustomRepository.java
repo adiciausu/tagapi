@@ -1,13 +1,10 @@
 package com.cegeka.tag.tagapi.repo;
 
-import com.cegeka.tag.tagapi.model.Image;
-
-import java.util.List;
+import com.mongodb.client.result.UpdateResult;
 
 public interface ImageCustomRepository {
-    public void deleteClassFromImages(String classId);
 
-    public List<Image> getLockedBatch(String projectId, String userId, int count);
+  public void deleteClassFromImages(String classId);
 
-    public List<Image> getAndLockBatch(String projectId, String userId, int count);
+  public UpdateResult lockBatch(String projectId, String userId, int count);
 }

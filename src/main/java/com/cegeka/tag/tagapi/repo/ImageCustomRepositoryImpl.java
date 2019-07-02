@@ -2,69 +2,49 @@ package com.cegeka.tag.tagapi.repo;
 
 import com.cegeka.tag.tagapi.model.Image;
 import com.cegeka.tag.tagapi.model.ImageStatus;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.util.List;
-
 public class ImageCustomRepositoryImpl implements ImageCustomRepository {
 
-    private MongoTemplate mongoTemplate;
+  private MongoTemplate mongoTemplate;
 
-    @Autowired
-    public ImageCustomRepositoryImpl(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-    }
+  @Autowired
+  public ImageCustomRepositoryImpl(MongoTemplate mongoTemplate) {
+    this.mongoTemplate = mongoTemplate;
+  }
 
-    @Override
-    public void deleteClassFromImages(String classId) {
-        Query query = new Query(Criteria.where("annotations.".concat(classId)).exists(true));
-        Update update = new Update();
-        update.unset("annotations.".concat(classId));
+  @Override
+  public void deleteClassFromImages(String classId) {
+    Query query = new Query(Criteria.where("annotations.".concat(classId)).exists(true));
+    Update update = new Update();
+    update.unset("annotations.".concat(classId));
 
-        mongoTemplate.updateMulti(query, update, Image.class);
-    }
+    mongoTemplate.updateMulti(query, update, Image.class);
+  }
 
-    public List<Image> getAndLockBatch(String projectId, String userId, int count) {
-        Criteria projectCriteria = Criteria.where("projectId").is(projectId);
-        Criteria statusCriteria = Criteria.where("status").is(ImageStatus.PENDING);
-        Criteria userCriteria = Criteria.where("userId").not().is(userId);
+  public UpdateResult lockBatch(String projectId, String userId, int count) {
+    Criteria projectCriteria = Criteria.where("projectId").is(projectId);
+    Criteria statusCriteria = Criteria.where("status").is(ImageStatus.PENDING.toString());
 
-        Query query = new Query();
-        query.addCriteria(statusCriteria);
-        query.addCriteria(projectCriteria);
-        query.addCriteria(userCriteria);
-        query.skip(0);
-        query.limit(count);
+    Query query = new Query();
+    query.addCriteria(statusCriteria);
+    query.addCriteria(projectCriteria);
 
-        Update update = new Update();
-        update.set("status", ImageStatus.PROCESSING);
+    Update update = new Update();
+    update.set("status", ImageStatus.PROCESSING.toString());
+    update.set("processorUserId", userId);
 
-        List<Image> imageList = mongoTemplate.findAndModify(query, update, List.class);
+    FindAndModifyOptions options = new FindAndModifyOptions();
+    options.returnNew(true);
 
-        return imageList;
-    }
+    UpdateResult updateResult = mongoTemplate.updateMulti(query, update, Image.class);
 
-    public List<Image> getLockedBatch(String projectId, String userId, int count) {
-        Criteria projectCriteria = Criteria.where("projectId").is(projectId);
-        Criteria statusCriteria = Criteria.where("status").is(ImageStatus.PENDING.toString());
-        Criteria userCriteria = Criteria.where("userId").is(userId);
-
-        Query query = new Query();
-        query.addCriteria(statusCriteria);
-        query.addCriteria(projectCriteria);
-        query.addCriteria(userCriteria);
-        query.skip(0);
-        query.limit(count);
-
-        Update update = new Update();
-        update.set("status", ImageStatus.PROCESSING.toString());
-
-        List<Image> imageList = mongoTemplate.findAndModify(query, update, List.class);
-
-        return imageList;
-    }
+    return updateResult;
+  }
 }
