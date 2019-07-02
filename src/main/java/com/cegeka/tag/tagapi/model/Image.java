@@ -20,4 +20,5 @@ public class Image {
     private String name;
     private String projectId;
     private ImageStatus status = ImageStatus.PENDING;
+    private String processorUserId;
 }

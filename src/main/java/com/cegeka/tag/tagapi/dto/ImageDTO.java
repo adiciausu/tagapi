@@ -1,6 +1,7 @@
 package com.cegeka.tag.tagapi.dto;
 
 import com.cegeka.tag.tagapi.model.Annotation;
+import com.cegeka.tag.tagapi.model.ImageStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +13,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class ImageDTO {
+
   private String id;
   private Map<String, Set<Annotation>> annotations = new HashMap<>();
   private Integer height;
@@ -19,4 +21,6 @@ public class ImageDTO {
   private String name;
   private String path;
   private String projectId;
+  private ImageStatus status = ImageStatus.PENDING;
+  private String processorUserId;
 }
