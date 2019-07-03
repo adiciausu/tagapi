@@ -3,6 +3,8 @@ package com.cegeka.tag.tagapi.repo;
 import com.cegeka.tag.tagapi.model.Image;
 import com.cegeka.tag.tagapi.model.ImageStatus;
 import com.mongodb.client.result.UpdateResult;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -28,25 +30,33 @@ public class ImageCustomRepositoryImpl implements ImageCustomRepository {
     mongoTemplate.updateMulti(query, update, Image.class);
   }
 
-  public UpdateResult lockBatch(String projectId, String userId, int count) {
+  public List<Image> getAndLockBatch(String projectId, String userId, List<String> excludedIds, int count) {
     Criteria projectCriteria = Criteria.where("projectId").is(projectId);
     Criteria statusCriteria = Criteria.where("status").is(ImageStatus.PENDING.toString());
+    Criteria excludeIds = Criteria.where("id").nin(excludedIds);
 
     Query query = new Query();
     query.addCriteria(statusCriteria);
     query.addCriteria(projectCriteria);
-    query.skip(0);
+    query.addCriteria(excludeIds);
     query.limit(count);
+    query.skip(0);
 
+    List<Image> newImages = mongoTemplate.find(query, Image.class);
+    List<String> newImageIdList = new ArrayList<>();
+    newImages.forEach((Image image) -> {
+      image.setProcessorUserId(userId);
+      image.setStatus(ImageStatus.PROCESSING);
+      newImageIdList.add(image.getId());
+    });
+
+    Query updateByIdsQuery = new Query(Criteria.where("id").in(newImageIdList));
     Update update = new Update();
     update.set("status", ImageStatus.PROCESSING.toString());
     update.set("processorUserId", userId);
 
-    FindAndModifyOptions options = new FindAndModifyOptions();
-    options.returnNew(true);
+    UpdateResult updateResult = mongoTemplate.updateMulti(updateByIdsQuery, update, Image.class);
 
-    UpdateResult updateResult = mongoTemplate.updateMulti(query, update, Image.class);
-
-    return updateResult;
+    return newImages;
   }
 }

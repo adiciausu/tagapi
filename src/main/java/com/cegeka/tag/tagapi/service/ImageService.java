@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.imageio.ImageIO;
@@ -87,11 +88,16 @@ public class ImageService {
       return userImageList;
     }
 
-    this.imageRepository.lockBatch(projectId, userId, userImageList);
+    List<String> imageIdList = new ArrayList<>();
+    userImageList.forEach((Image image) -> {
+      imageIdList.add(image.getId());
+    });
 
-    return this.imageRepository
-        .findAllByProjectIdAndStatusAndProcessorUserId(projectId, ImageStatus.PROCESSING, userId,
-            page);
+    List<Image> newImageList = this.imageRepository
+        .getAndLockBatch(projectId, userId, imageIdList, IMAGE_BATCH_COUNT - userImageList.size());
+    userImageList.addAll(newImageList);
+
+    return userImageList;
   }
 
   public void delete(String imageId) {
