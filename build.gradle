@@ -17,6 +17,10 @@ mainClassName = 'com.cegeka.tag.tagapi.TagapiApplication'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+bootJar {
+    launchScript()
+}
+
 repositories {
 	mavenCentral()
 }
